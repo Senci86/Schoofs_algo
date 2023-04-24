@@ -61,6 +61,7 @@ def create_addition_table(a, b, p):
 
 
 
+
 st.title("Schoof-Algorithmus für elliptische Kurven")
 
 a = st.number_input("Geben Sie den Koeffizienten a ein:", value=3)
