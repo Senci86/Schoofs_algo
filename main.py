@@ -1,7 +1,33 @@
 import streamlit as st
 import plotly.express as px
 import pandas as pd
-from code_schoof_algorithm import schoof_algorithm, points_on_curve  # Importieren Sie die Funktionen aus Ihrem vorhandenen Code
+from sympy import mod_inverse
+from code_schoof_algorithm import schoof_algorithm, points_on_curve
+
+
+def point_addition(P, Q, a, p):
+    O = "O"
+
+    if P == O:
+        return Q
+    if Q == O:
+        return P
+
+    x1, y1 = eval(P)  # Konvertieren Sie die Zeichenkette P in ein Tupel
+    x2, y2 = eval(Q)  # Konvertieren Sie die Zeichenkette Q in ein Tupel
+
+    if x1 == x2 and (y1 != y2 or y1 == 0):
+        return O
+
+    if P == Q:
+        lam = (3 * x1 ** 2 + a) * mod_inverse(2 * y1, p) % p
+    else:
+        lam = (y2 - y1) * mod_inverse(x2 - x1, p) % p
+
+    x3 = (lam ** 2 - x1 - x2) % p
+    y3 = (lam * (x1 - x3) - y1) % p
+
+    return f"({x3}, {y3})"  # Geben Sie das Ergebnis als Zeichenkette zurück
 
 
 def draw_elliptic_curve(a, b, p):
@@ -10,6 +36,25 @@ def draw_elliptic_curve(a, b, p):
 
     fig = px.scatter(data, x="x", y="y", title="Elliptische Kurve")
     return fig
+
+
+def create_addition_table(a, b, p):
+    O = "O"
+    curve_points = list(points_on_curve(a, b, p))  # Konvertieren Sie das Set in eine Liste
+    curve_points.sort(key=lambda point: (point[0], point[1]))  # Sortieren Sie die Punkte in aufsteigender Reihenfolge
+    points = [O] + [(f"({x}, {y})") for x, y in curve_points]
+    addition_table = []
+
+    for P in points:
+        row = []
+        for Q in points:
+            row.append(point_addition(P, Q, a, p))
+        addition_table.append(row)
+
+    return pd.DataFrame(addition_table, columns=points, index=points)
+
+
+
 
 
 st.title("Schoof-Algorithmus für elliptische Kurven")
@@ -25,6 +70,10 @@ if st.button("Berechne Anzahl der Punkte und zeichne Kurve"):
 
         curve_plot = draw_elliptic_curve(a, b, p)
         st.plotly_chart(curve_plot)
+
+        addition_table = create_addition_table(a, b, p)
+        st.write("Punktzusätze:")
+        st.dataframe(addition_table)
 
     except ValueError as e:
         st.error(f"Ein Fehler ist aufgetreten: {e}")
