@@ -32,7 +32,6 @@ def point_addition(P, Q, a, p):
     return f"({x3}, {y3})"  # Geben Sie das Ergebnis als Zeichenkette zurück
 
 
-
 def draw_elliptic_curve(a, b, p):
     points = points_on_curve(a, b, p)
     data = pd.DataFrame(points, columns=["x", "y"])
@@ -41,22 +40,24 @@ def draw_elliptic_curve(a, b, p):
     return fig
 
 
+
 def create_addition_table(a, b, p):
     O = "O"
-    curve_points = list(points_on_curve(a, b, p))  # Konvertieren Sie das Set in eine Liste
-    curve_points.sort(key=lambda point: (point[0], point[1]))  # Sortieren Sie die Punkte in aufsteigender Reihenfolge
+    curve_points = list(points_on_curve(a, b, p))
+    curve_points.sort(key=lambda point: (point[0], point[1]))
     points = [O] + [(f"({x}, {y})") for x, y in curve_points]
     addition_table = []
 
     for P in points:
         row = []
         for Q in points:
-            row.append(point_addition(P, Q, a, p))
+            if points.index(P) <= points.index(Q):
+                row.append(point_addition(P, Q, a, p))
+            else:
+                row.append(point_addition(Q, P, a, p))
         addition_table.append(row)
 
     return pd.DataFrame(addition_table, columns=points, index=points)
-
-
 
 
 
@@ -75,8 +76,10 @@ if st.button("Berechne Anzahl der Punkte und zeichne Kurve"):
         st.plotly_chart(curve_plot)
 
         addition_table = create_addition_table(a, b, p)
-        st.write("Punktzusätze:")
-        st.dataframe(addition_table)
+
+
+        st.table(addition_table)
+
 
     except ValueError as e:
         st.error(f"Ein Fehler ist aufgetreten: {e}")
