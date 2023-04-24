@@ -1,19 +1,14 @@
 import streamlit as st
-import matplotlib.pyplot as plt
+import plotly.express as px
+import pandas as pd
 from code_schoof_algorithm import schoof_algorithm, points_on_curve  # Importieren Sie die Funktionen aus Ihrem vorhandenen Code
 
 
 def draw_elliptic_curve(a, b, p):
     points = points_on_curve(a, b, p)
-    x_values = [point[0] for point in points]
-    y_values = [point[1] for point in points]
+    data = pd.DataFrame(points, columns=["x", "y"])
 
-    fig, ax = plt.subplots()
-    ax.scatter(x_values, y_values, color="blue")
-    ax.set_title("Elliptische Kurve")
-    ax.set_xlabel("x")
-    ax.set_ylabel("y")
-
+    fig = px.scatter(data, x="x", y="y", title="Elliptische Kurve")
     return fig
 
 
@@ -29,7 +24,7 @@ if st.button("Berechne Anzahl der Punkte und zeichne Kurve"):
         st.write(f"Die Anzahl der Punkte auf der elliptischen Kurve ist: {num_points}")
 
         curve_plot = draw_elliptic_curve(a, b, p)
-        st.pyplot(curve_plot)
+        st.plotly_chart(curve_plot)
 
     except ValueError as e:
         st.error(f"Ein Fehler ist aufgetreten: {e}")

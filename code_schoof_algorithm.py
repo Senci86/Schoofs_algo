@@ -1,6 +1,3 @@
-import itertools
-
-
 def extended_euclidean_algorithm(a, b):
     if a == 0:
         return b, 0, 1
