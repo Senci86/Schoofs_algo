@@ -1,8 +1,7 @@
 import streamlit as st
 import plotly.express as px
 import pandas as pd
-from sympy import mod_inverse
-from code_schoof_algorithm import schoof_algorithm, points_on_curve
+from code_schoof_algorithm import schoof_algorithm, points_on_curve, mod_inverse
 
 
 def point_addition(P, Q, a, p):
@@ -19,15 +18,19 @@ def point_addition(P, Q, a, p):
     if x1 == x2 and (y1 != y2 or y1 == 0):
         return O
 
-    if P == Q:
-        lam = (3 * x1 ** 2 + a) * mod_inverse(2 * y1, p) % p
-    else:
-        lam = (y2 - y1) * mod_inverse(x2 - x1, p) % p
+    try:
+        if P == Q:
+            lam = (3 * x1 ** 2 + a) * mod_inverse(2 * y1, p) % p
+        else:
+            lam = (y2 - y1) * mod_inverse(x2 - x1, p) % p
+    except Exception:
+        return O
 
     x3 = (lam ** 2 - x1 - x2) % p
     y3 = (lam * (x1 - x3) - y1) % p
 
     return f"({x3}, {y3})"  # Geben Sie das Ergebnis als Zeichenkette zurück
+
 
 
 def draw_elliptic_curve(a, b, p):

@@ -6,12 +6,20 @@ def extended_euclidean_algorithm(a, b):
         return g, y - (b // a) * x, x
 
 
-def inverse_mod(a, m):
-    g, x, _ = extended_euclidean_algorithm(a, m)
-    if g == 1:
-        return x % m
+def mod_inverse(a, m):
+    g, x, _ = gcd_extended(a, m)
+    if g != 1:
+        raise Exception("Modular inverse does not exist")
     else:
-        raise ValueError("No inverse modulo found")
+        return x % m
+
+def gcd_extended(a, b):
+    if a == 0:
+        return b, 0, 1
+    gcd, x1, y1 = gcd_extended(b % a, a)
+    x = y1 - (b // a) * x1
+    y = x1
+    return gcd, x, y
 
 
 def elliptic_curve_add(P, Q, a, p):
@@ -27,9 +35,9 @@ def elliptic_curve_add(P, Q, a, p):
         return None
 
     if P == Q:
-        slope = (3 * x1 * x1 + a) * inverse_mod(2 * y1, p) % p
+        slope = (3 * x1 * x1 + a) * mod_inverse(2 * y1, p) % p
     else:
-        slope = (y2 - y1) * inverse_mod(x2 - x1, p) % p
+        slope = (y2 - y1) * mod_inverse(x2 - x1, p) % p
 
     x3 = (slope * slope - x1 - x2) % p
     y3 = (slope * (x1 - x3) - y1) % p
